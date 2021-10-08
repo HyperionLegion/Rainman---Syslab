@@ -27,6 +27,18 @@ def reshuffle(num):
     for i in cards.keys():
         cards[i] = num
 
+def getValue(i, curr=0):
+    suit = i[0:-1]
+    if suit =='A':
+        if(curr < 11):
+            return 11
+        else:
+            return 1
+    else:
+        if suit == 'J' or suit =='K' or suit=='Q':
+            suit = '10'
+        return int(suit)
+
 def possibleScores(curr):
     scores = {}
     for i in range(1,12):
@@ -59,13 +71,97 @@ def probBust(i):
 
 def sim():
     runs = 0
-    while runs < 20:
+    money = 1000
+    count = 0
+    addDeck(4)
+    while runs < 40:
         possible = []
+        for i in cards.keys():
+            if cards[i] > 0:
+                possible.append(i)
+
+        #initial hand
+        hand = 0
+        rand = random.randrange(len(possible))
+        remove(possible[rand])
+        hand += getValue(possible[rand], hand)
+        if getValue(possible[rand], hand) > 9:
+            count = count - 1
+        elif getValue(possible[rand], hand)<7:
+            count = count + 1
+
         for i in cards.keys():
             if cards[i] > 0:
                 possible.append(i)
         rand = random.randrange(len(possible))
         remove(possible[rand])
-        runs += 1
+        hand += getValue(possible[rand], hand)
+        if getValue(possible[rand], hand) > 9:
+            count = count - 1
+        elif getValue(possible[rand], hand)<7:
+            count = count + 1
 
+        #hit if count > 4
+        if count/5 < 4 or hand < 17:
+        #if random.random() > 0.5:
+            for i in cards.keys():
+                if cards[i] > 0:
+                    possible.append(i)
+            rand = random.randrange(len(possible))
+            remove(possible[rand])
+            hand += getValue(possible[rand])
+            if getValue(possible[rand], hand) > 9:
+                count = count - 1
+            elif getValue(possible[rand], hand)<7:
+                count = count + 1
+
+
+        #dealer draws
+        dealer = 0
+        while dealer < 17:
+            for i in cards.keys():
+                if cards[i] > 0:
+                    possible.append(i)
+            rand = random.randrange(len(possible))
+            remove(possible[rand])
+            dealer += getValue(possible[rand])
+            if getValue(possible[rand], hand) > 9:
+                count = count - 1
+            elif getValue(possible[rand], hand)<7:
+                count = count + 1
+                
+
+        #score
+        if hand > 21:
+            money = money - 50
+            #print('loss')
+        if hand == 21:
+            money = money + 150
+            #print('win')
+        elif dealer > 21:
+            money = money + 50
+            #print('win')
+        else:
+            if dealer <= 21 and hand < 21:
+                if dealer > hand:
+                    money = money - 50
+                   # print('loss')
+                elif hand > dealer:
+                    money = money + 50
+                    #print('win')
+        print(hand, dealer)
+        print(money)
+        runs += 1
+    return money
+
+wins = 0
+loss = 0
+for i in range(0, 100):
+    reshuffle(4)
+    if sim() > 1000:
+        wins += 1
+    elif sim() < 1000:
+        loss += 1
+print(wins)
+print(loss)
 #sim()
