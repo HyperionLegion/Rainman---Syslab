@@ -6,6 +6,7 @@ cards = {"2s": 1, "3s": 1,"4s": 1,"5s": 1,"6s": 1,"7s": 1,"8s": 1,"9s": 1,"10s":
 "2d": 1, "3d": 1,"4d": 1,"5d": 1,"6d": 1,"7d": 1,"8d": 1,"9d": 1,"10d": 1,"Jd": 1,"Qd": 1,"Kd": 1,"Ad": 1,
 "2c": 1, "3c": 1,"4c": 1,"5c": 1,"6c": 1,"7c": 1,"8c": 1,"9c": 1,"10c": 1,"Jc": 1,"Qc": 1,"Kc": 1,"Ac": 1,}
 count = 0 #usually stand if true count > 4 otherwise hit
+decks = 5
 
 def upCount():
     count += 1
@@ -73,7 +74,8 @@ def sim():
     runs = 0
     money = 1000
     count = 0
-    addDeck(4)
+    betSize = 50
+    addDeck(decks-1)
     while runs < 40:
         possible = []
         for i in cards.keys():
@@ -85,6 +87,7 @@ def sim():
         rand = random.randrange(len(possible))
         remove(possible[rand])
         hand += getValue(possible[rand], hand)
+        #card count
         if getValue(possible[rand], hand) > 9:
             count = count - 1
         elif getValue(possible[rand], hand)<7:
@@ -93,6 +96,7 @@ def sim():
         for i in cards.keys():
             if cards[i] > 0:
                 possible.append(i)
+        #2nd card
         rand = random.randrange(len(possible))
         remove(possible[rand])
         hand += getValue(possible[rand], hand)
@@ -102,7 +106,7 @@ def sim():
             count = count + 1
 
         #hit if count > 4
-        if count/5 < 4 or hand < 17:
+        if count/decks < 4 or hand < 17:
         #if random.random() > 0.5:
             for i in cards.keys():
                 if cards[i] > 0:
@@ -133,21 +137,21 @@ def sim():
 
         #score
         if hand > 21:
-            money = money - 50
+            money = money - betSize
             #print('loss')
-        if hand == 21:
-            money = money + 150
+        if hand == 21 and dealer != 21:
+            money = money + betSize*1.5
             #print('win')
         elif dealer > 21:
-            money = money + 50
+            money = money + betSize
             #print('win')
         else:
             if dealer <= 21 and hand < 21:
                 if dealer > hand:
-                    money = money - 50
+                    money = money - betSize
                    # print('loss')
                 elif hand > dealer:
-                    money = money + 50
+                    money = money + betSize
                     #print('win')
         print(hand, dealer)
         print(money)
@@ -157,7 +161,7 @@ def sim():
 wins = 0
 loss = 0
 for i in range(0, 100):
-    reshuffle(4)
+    reshuffle(decks)
     if sim() > 1000:
         wins += 1
     elif sim() < 1000:
