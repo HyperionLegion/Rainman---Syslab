@@ -5,13 +5,10 @@ cards = {"2s": 1, "3s": 1,"4s": 1,"5s": 1,"6s": 1,"7s": 1,"8s": 1,"9s": 1,"10s":
 "2h": 1, "3h": 1,"4h": 1,"5h": 1,"6h": 1,"7h": 1,"8h": 1,"9h": 1,"10h": 1,"Jh": 1,"Qh": 1,"Kh": 1,"Ah": 1,
 "2d": 1, "3d": 1,"4d": 1,"5d": 1,"6d": 1,"7d": 1,"8d": 1,"9d": 1,"10d": 1,"Jd": 1,"Qd": 1,"Kd": 1,"Ad": 1,
 "2c": 1, "3c": 1,"4c": 1,"5c": 1,"6c": 1,"7c": 1,"8c": 1,"9c": 1,"10c": 1,"Jc": 1,"Qc": 1,"Kc": 1,"Ac": 1,}
-decks = 5
-
-def upCount():
-    count += 1
-
-def downCount():
-    count -=1
+decks = 4
+count = 0
+cards_played = 0
+decks_left = 4
 
 def isLeft(s):
     return cards[s]
@@ -19,11 +16,7 @@ def isLeft(s):
 def remove(s):
     cards[s] = cards[s]-1
 
-def addDeck(num):
-    for i in cards.keys():
-        cards[i] += num
-
-def reshuffle(num):
+def resetDeck(num):
     for i in cards.keys():
         cards[i] = num
 
@@ -69,76 +62,82 @@ def probBust(i):
     #print(over)
     return float(over/total)
 
+def drawCard(curr):
+    global count
+    global cards_played
+    possible = []
+    for i in cards.keys():
+        if cards[i] > 0:
+            for j in range(cards[i]):
+                possible.append(i)
+    rand = random.randrange(len(possible))
+    remove(possible[rand])
+    cards_played += 1
+    #card count
+    if possible[rand][0:-1] == 'A':
+        count-=1
+    elif getValue(possible[rand], curr) > 9:
+        count -= 1
+    elif getValue(possible[rand], curr)<7:
+        count += 1
+    return getValue(possible[rand], curr)
+
+
 def sim():
     runs = 0
-    money = 1000
-    count = 0
-    betSize = 50
-    addDeck(decks-1)
-    while runs < 40:
-        possible = []
-        for i in cards.keys():
-            if cards[i] > 0:
-                possible.append(i)
-
+    money = 2500
+    global count
+    global decks_left
+    global cards_played
+    decks_left = decks
+    cards_played = 0
+    count=0
+    betSize = 5
+    resetDeck(decks)
+    while runs < 10:
+        decks_left = decks - (cards_played//52)
         #initial hand
         hand = 0
-        rand = random.randrange(len(possible))
-        remove(possible[rand])
-        hand += getValue(possible[rand], hand)
-        #card count
-        if getValue(possible[rand], hand) > 9:
-            count = count - 1
-        elif getValue(possible[rand], hand)<7:
-            count = count + 1
+        hand += drawCard(hand)
 
-        for i in cards.keys():
-            if cards[i] > 0:
-                possible.append(i)
         #2nd card
-        rand = random.randrange(len(possible))
-        remove(possible[rand])
-        hand += getValue(possible[rand], hand)
-        if getValue(possible[rand], hand) > 9:
-            count = count - 1
-        elif getValue(possible[rand], hand)<7:
-            count = count + 1
-
-        #hit if count > 4
-        if count/decks < 4 or hand < 17:
-        #if random.random() > 0.5:
-            for i in cards.keys():
-                if cards[i] > 0:
-                    possible.append(i)
-            rand = random.randrange(len(possible))
-            remove(possible[rand])
-            hand += getValue(possible[rand])
-            if getValue(possible[rand], hand) > 9:
-                count = count - 1
-            elif getValue(possible[rand], hand)<7:
-                count = count + 1
-
+        hand += drawCard(hand)
 
         #dealer draws
         dealer = 0
+        dealer += drawCard(dealer)
+
+        while hand <17:
+        # if (hand==-11 and dealer==11) or (hand==10 and (dealer==10 or dealer==11)) or (hand==9 and (dealer==2 or (dealer<=11 and dealer>=7))) or (hand<=8) or (hand==12 and dealer!=4 and dealer!=5 and dealer!=6) or (hand>=13 and hand<=16 and (dealer<2 or dealer>6)):
+            hand +=drawCard(hand)
+
+        
+        #bet high if there is a high true count
+        #1-8 bet spread
+        if count/decks >= 3:
+        #if random.random() > 0.5:
+            # hand += drawCard(hand)
+            betSize = 80
+        elif count/decks >=2:
+            betSize = 40
+        elif count/decks >=1:
+            betSize = 20
+        else:
+            betSize=10
+
+        # if count/decks_left < 2:
+        #     betSize = 10
+        # else:
+        #     betSize = 25*(count/decks_left-1)
+
         while dealer < 17:
-            for i in cards.keys():
-                if cards[i] > 0:
-                    possible.append(i)
-            rand = random.randrange(len(possible))
-            remove(possible[rand])
-            dealer += getValue(possible[rand])
-            if getValue(possible[rand], hand) > 9:
-                count = count - 1
-            elif getValue(possible[rand], hand)<7:
-                count = count + 1
-                
+            dealer += drawCard(dealer)
 
         #score
         if hand > 21:
             money = money - betSize
             #print('loss')
-        if hand == 21 and dealer != 21:
+        elif hand == 21 and dealer != 21:
             money = money + betSize*1.5
             #print('win')
         elif dealer > 21:
@@ -152,19 +151,21 @@ def sim():
                 elif hand > dealer:
                     money = money + betSize
                     #print('win')
-        print(hand, dealer)
-        print(money)
+        #print(hand, dealer)
+        # print(money)
         runs += 1
     return money
+
 
 wins = 0
 loss = 0
 for i in range(0, 100):
-    reshuffle(decks)
-    if sim() > 1000:
+    score = sim()
+    if score >= 2500:
         wins += 1
-    elif sim() < 1000:
+    else:
         loss += 1
+# print(sim())
 print(wins)
 print(loss)
-#sim()
+    
