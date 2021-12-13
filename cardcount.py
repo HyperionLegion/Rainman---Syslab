@@ -5,10 +5,9 @@ cards = {"2s": 1, "3s": 1,"4s": 1,"5s": 1,"6s": 1,"7s": 1,"8s": 1,"9s": 1,"10s":
 "2h": 1, "3h": 1,"4h": 1,"5h": 1,"6h": 1,"7h": 1,"8h": 1,"9h": 1,"10h": 1,"Jh": 1,"Qh": 1,"Kh": 1,"Ah": 1,
 "2d": 1, "3d": 1,"4d": 1,"5d": 1,"6d": 1,"7d": 1,"8d": 1,"9d": 1,"10d": 1,"Jd": 1,"Qd": 1,"Kd": 1,"Ad": 1,
 "2c": 1, "3c": 1,"4c": 1,"5c": 1,"6c": 1,"7c": 1,"8c": 1,"9c": 1,"10c": 1,"Jc": 1,"Qc": 1,"Kc": 1,"Ac": 1,}
-decks = 4
+decks = 2
 count = 0
 cards_played = 0
-decks_left = 4
 
 def isLeft(s):
     return cards[s]
@@ -107,20 +106,35 @@ def sim():
         dealer = 0
         dealer += drawCard(dealer)
 
-        while hand <17:
+        # while hand <12:
         # if (hand==-11 and dealer==11) or (hand==10 and (dealer==10 or dealer==11)) or (hand==9 and (dealer==2 or (dealer<=11 and dealer>=7))) or (hand<=8) or (hand==12 and dealer!=4 and dealer!=5 and dealer!=6) or (hand>=13 and hand<=16 and (dealer<2 or dealer>6)):
-            hand +=drawCard(hand)
+            # hand +=drawCard(hand)
 
+        while dealer < 17:
+            dealer += drawCard(dealer)
+
+        if count/decks_left > 0:
+            if hand < 16:
+                hand += drawCard(hand)
+        
+        elif count/decks_left < 0:
+            if hand <= 16:
+                hand += drawCard(hand)
+            # elif dealer < 10:
+            #     hand += drawCard(hand)
+        else:
+            if hand < 17:
+                hand += drawCard(hand)
         
         #bet high if there is a high true count
         #1-8 bet spread
-        if count/decks >= 3:
+        if count/decks_left >= 3:
         #if random.random() > 0.5:
             # hand += drawCard(hand)
             betSize = 80
-        elif count/decks >=2:
+        elif count/decks_left >=2:
             betSize = 40
-        elif count/decks >=1:
+        elif count/decks_left >=1:
             betSize = 20
         else:
             betSize=10
@@ -129,9 +143,6 @@ def sim():
         #     betSize = 10
         # else:
         #     betSize = 25*(count/decks_left-1)
-
-        while dealer < 17:
-            dealer += drawCard(dealer)
 
         #score
         if hand > 21:
