@@ -5,7 +5,7 @@ cards = {"2s": 1, "3s": 1,"4s": 1,"5s": 1,"6s": 1,"7s": 1,"8s": 1,"9s": 1,"10s":
 "2h": 1, "3h": 1,"4h": 1,"5h": 1,"6h": 1,"7h": 1,"8h": 1,"9h": 1,"10h": 1,"Jh": 1,"Qh": 1,"Kh": 1,"Ah": 1,
 "2d": 1, "3d": 1,"4d": 1,"5d": 1,"6d": 1,"7d": 1,"8d": 1,"9d": 1,"10d": 1,"Jd": 1,"Qd": 1,"Kd": 1,"Ad": 1,
 "2c": 1, "3c": 1,"4c": 1,"5c": 1,"6c": 1,"7c": 1,"8c": 1,"9c": 1,"10c": 1,"Jc": 1,"Qc": 1,"Kc": 1,"Ac": 1,}
-decks = 2
+decks = 4
 count = 0
 cards_played = 0
 
@@ -72,6 +72,8 @@ def drawCard(curr):
     rand = random.randrange(len(possible))
     remove(possible[rand])
     cards_played += 1
+
+    # print(possible[rand])
     #card count
     if possible[rand][0:-1] == 'A':
         count-=1
@@ -93,7 +95,8 @@ def sim():
     count=0
     betSize = 5
     resetDeck(decks)
-    while runs < 10:
+    # print()
+    while runs < 30:
         decks_left = decks - (cards_played//52)
         #initial hand
         hand = 0
@@ -104,7 +107,6 @@ def sim():
 
         #dealer draws
         dealer = 0
-        dealer += drawCard(dealer)
 
         # while hand <12:
         # if (hand==-11 and dealer==11) or (hand==10 and (dealer==10 or dealer==11)) or (hand==9 and (dealer==2 or (dealer<=11 and dealer>=7))) or (hand<=8) or (hand==12 and dealer!=4 and dealer!=5 and dealer!=6) or (hand>=13 and hand<=16 and (dealer<2 or dealer>6)):
@@ -112,19 +114,23 @@ def sim():
 
         while dealer < 17:
             dealer += drawCard(dealer)
+            # print('dealer')
 
-        if count/decks_left > 0:
-            if hand < 16:
-                hand += drawCard(hand)
-        
-        elif count/decks_left < 0:
-            if hand <= 16:
-                hand += drawCard(hand)
-            # elif dealer < 10:
-            #     hand += drawCard(hand)
-        else:
-            if hand < 17:
-                hand += drawCard(hand)
+        while hand < 16:
+            if count/decks_left > 0:
+                if hand < 16:
+                    hand += drawCard(hand)
+            
+            elif count/decks_left < 0:
+                if hand <= 16:
+                    hand += drawCard(hand)
+                # elif dealer < 10:
+                #     hand += drawCard(hand)
+            else:
+                if hand < 17:
+                    hand += drawCard(hand)
+
+        # print(count, decks_left, cards_played)
         
         #bet high if there is a high true count
         #1-8 bet spread
@@ -137,7 +143,7 @@ def sim():
         elif count/decks_left >=1:
             betSize = 20
         else:
-            betSize=10
+            betSize=0
 
         # if count/decks_left < 2:
         #     betSize = 10
@@ -147,22 +153,22 @@ def sim():
         #score
         if hand > 21:
             money = money - betSize
-            #print('loss')
+            # print('loss')
         elif hand == 21 and dealer != 21:
             money = money + betSize*1.5
-            #print('win')
+            # print('win')
         elif dealer > 21:
             money = money + betSize
-            #print('win')
+            # print('win')
         else:
             if dealer <= 21 and hand < 21:
                 if dealer > hand:
                     money = money - betSize
-                   # print('loss')
+                    # print('loss')
                 elif hand > dealer:
                     money = money + betSize
-                    #print('win')
-        #print(hand, dealer)
+                    # print('win')
+        # print(hand, dealer)
         # print(money)
         runs += 1
     return money
@@ -179,4 +185,3 @@ for i in range(0, 100):
 # print(sim())
 print(wins)
 print(loss)
-    
