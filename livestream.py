@@ -38,7 +38,7 @@ ln = [ln[i[0] - 1] for i in net.getUnconnectedOutLayers()]
 
 # initialize the video stream, pointer to output video file, and
 # frame dimensions
-vs = cv2.VideoCapture(args["input"]) # replace with live stream
+vs = cv2.VideoCapture(0) # replace with live stream
 writer = None
 (W, H) = (None, None)
 # try to determine the total number of frames in the video file
@@ -60,6 +60,8 @@ while True:
 	(grabbed, frame) = vs.read()
 	# if the frame was not grabbed, then we have reached the end
 	# of the stream
+	frame = cv2.resize(frame, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_AREA)
+
 	if not grabbed:
 		break
 	# if the frame dimensions are empty, grab them
@@ -128,39 +130,21 @@ while True:
 			cv2.putText(frame, text, (x, y - 5),
 				cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
     # check if the video writer is None
-	if writer is None:
-		# initialize our video writer
-		fourcc = cv2.VideoWriter_fourcc(*"MJPG")
-		writer = cv2.VideoWriter(args["output"], fourcc, 30,
-			(frame.shape[1], frame.shape[0]), True)
-		# some information on processing single frame
-		if total > 0:
-			elap = (end - start)
-			print("[INFO] single frame took {:.4f} seconds".format(elap))
-			print("[INFO] estimated total time to finish: {:.4f}".format(
-				elap * total))
-	# write the output frame to disk
-	writer.write(frame)
+	# if writer is None:
+	# 	# initialize our video writer
+	# 	fourcc = cv2.VideoWriter_fourcc(*"MJPG")
+	# 	writer = cv2.VideoWriter(args["output"], fourcc, 30,
+	# 		(frame.shape[1], frame.shape[0]), True)
+	# 	# some information on processing single frame
+	# 	if total > 0:
+	# 		elap = (end - start)
+	# 		print("[INFO] single frame took {:.4f} seconds".format(elap))
+	# 		print("[INFO] estimated total time to finish: {:.4f}".format(
+	# 			elap * total))
+	# # write the output frame to disk
+	# writer.write(frame)
+	cv2.imshow('Input', frame)
 # release the file pointers
 print("[INFO] cleaning up...")
 writer.release()
 vs.release()
-# import cv2
-
-# cap = cv2.VideoCapture(0)
-
-# # Check if the webcam is opened correctly
-# if not cap.isOpened():
-#     raise IOError("Cannot open webcam")
-
-# while True:
-#     ret, frame = cap.read()
-#     frame = cv2.resize(frame, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_AREA)
-#     cv2.imshow('Input', frame)
-
-#     c = cv2.waitKey(1)
-#     if c == 27:
-#         break
-
-# cap.release()
-# cv2.destroyAllWindows()
