@@ -58,6 +58,7 @@ except:
 while True:
 	# read the next frame from the file
 	(grabbed, frame) = vs.read()
+	print('read')
 	# if the frame was not grabbed, then we have reached the end
 	# of the stream
 	frame = cv2.resize(frame, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_AREA)

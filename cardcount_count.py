@@ -83,19 +83,13 @@ def drawCard(curr):
         count += 1
     return getValue(possible[rand], curr)
 
-bust = 0
-dealerHigher = 0
-biggest = 0
+
 def sim():
     runs = 0
     money = 2500
     global count
     global decks_left
     global cards_played
-    global bust
-    global dealerHigher
-    global biggest
-    minbust_prob = 0.5
     decks_left = decks
     cards_played = 0
     count=0
@@ -114,8 +108,6 @@ def sim():
         #dealer draws
         dealer = 0
 
-
-       # print(probBust(hand))
         # while hand <12:
         # if (hand==-11 and dealer==11) or (hand==10 and (dealer==10 or dealer==11)) or (hand==9 and (dealer==2 or (dealer<=11 and dealer>=7))) or (hand<=8) or (hand==12 and dealer!=4 and dealer!=5 and dealer!=6) or (hand>=13 and hand<=16 and (dealer<2 or dealer>6)):
             # hand +=drawCard(hand)
@@ -124,20 +116,19 @@ def sim():
             dealer += drawCard(dealer)
             # print('dealer')
 
-        while hand < 16 and probBust(hand)<minbust_prob and dealer<=21 and hand<=dealer:
+        while hand < 16:
             if count/decks_left > 0:
-                if hand < 16 or probBust(hand)<minbust_prob:
+                if hand < 16:
                     hand += drawCard(hand)
             
             elif count/decks_left < 0:
-                if hand <= 16 or probBust(hand)<minbust_prob:
+                if hand <= 16:
                     hand += drawCard(hand)
                 # elif dealer < 10:
                 #     hand += drawCard(hand)
             else:
-                if hand < 17 or probBust(hand)<minbust_prob:
+                if hand < 17:
                     hand += drawCard(hand)
-            #hand += drawCard(hand)
 
         # print(count, decks_left, cards_played)
         
@@ -146,9 +137,9 @@ def sim():
         if count/decks_left >= 3:
         #if random.random() > 0.5:
             # hand += drawCard(hand)
-            betSize = 1000
+            betSize = 80
         elif count/decks_left >=2:
-            betSize = 500
+            betSize = 40
         elif count/decks_left >=1:
             betSize = 20
         else:
@@ -162,7 +153,6 @@ def sim():
         #score
         if hand > 21:
             money = money - betSize
-            bust += 1
             # print('loss')
         elif hand == 21 and dealer != 21:
             money = money + betSize*1.5
@@ -174,7 +164,6 @@ def sim():
             if dealer <= 21 and hand < 21:
                 if dealer > hand:
                     money = money - betSize
-                    dealerHigher += 1
                     # print('loss')
                 elif hand > dealer:
                     money = money + betSize
@@ -182,14 +171,11 @@ def sim():
         # print(hand, dealer)
         # print(money)
         runs += 1
-    if money > biggest:
-        biggest = money
     return money
 
 
 wins = 0
 loss = 0
-#print(probBust(14))
 for i in range(0, 100):
     score = sim()
     if score >= 2500:
@@ -199,6 +185,3 @@ for i in range(0, 100):
 # print(sim())
 print(wins)
 print(loss)
-print(bust)
-print(dealerHigher)
-print(biggest)
