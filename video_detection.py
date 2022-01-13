@@ -85,7 +85,7 @@ while True:
 	confidences = []
 	classIDs = []
 
-    # loop over each of the layer outputs
+	# loop over each of the layer outputs
 	for output in layerOutputs:
 		# loop over each of the detections
 		for detection in output:
@@ -113,7 +113,7 @@ while True:
 				boxes.append([x, y, int(width), int(height)])
 				confidences.append(float(confidence))
 				classIDs.append(classID)
-    # apply non-maxima suppression to suppress weak, overlapping
+	# apply non-maxima suppression to suppress weak, overlapping
 	# bounding boxes
 	idxs = cv2.dnn.NMSBoxes(boxes, confidences, args["confidence"],
 		args["threshold"])
@@ -124,15 +124,15 @@ while True:
 			# extract the bounding box coordinates
 			(x, y) = (boxes[i][0], boxes[i][1])
 			(w, h) = (boxes[i][2], boxes[i][3])
-			print(LABELS[classIDs[i]])
+			print(LABELS[classIDs[i]], x, y, w, h, W, H)
 			# draw a bounding box rectangle and label on the frame
 			color = [int(c) for c in COLORS[classIDs[i]]]
-			cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
+			cv2.rectangle(frame, (x, y), (x+w, y+h), color, 2)
 			text = "{}: {:.4f}".format(LABELS[classIDs[i]],
 				confidences[i])
 			cv2.putText(frame, text, (x, y - 5),
 				cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-    # check if the video writer is None
+	# check if the video writer is None
 	if writer is None:
 		# initialize our video writer
 		fourcc = cv2.VideoWriter_fourcc(*"MJPG")
@@ -145,8 +145,10 @@ while True:
 			print("[INFO] estimated total time to finish: {:.4f}".format(
 				elap * total))
 	# write the output frame to disk
-	writer.write(frame)
-	#cv2.imshow('Input', frame)
+	cv2.imshow('Input', frame)
+	if cv2.waitKey(1) & 0xFF == ord('q'):
+		break
+	
 # release the file pointers
 print("[INFO] cleaning up...")
 writer.release()
