@@ -145,6 +145,8 @@ while True:
 	# # write the output frame to disk
 	# writer.write(frame)
 	cv2.imshow('Input', frame)
+	if cv2.waitKey(1) & 0xFF == ord('q'):
+		break
 # release the file pointers
 print("[INFO] cleaning up...")
 writer.release()
