@@ -1,4 +1,7 @@
 import random
+import numpy as np
+from scipy import stats
+import statistics
 #example 5s: 5 of spades
 #S = spades, H = hearts, C = clubs, D = diamonds
 cards = {"2s": 1, "3s": 1,"4s": 1,"5s": 1,"6s": 1,"7s": 1,"8s": 1,"9s": 1,"10s": 1,"Js": 1,"Qs": 1,"Ks": 1,"As": 1,
@@ -189,9 +192,14 @@ def sim():
 
 wins = 0
 loss = 0
+profits = []
 #print(probBust(14))
 for i in range(0, 100):
     score = sim()
+    if score <= 0:
+        profits.append(-2500)
+    else:
+        profits.append(score-2500)
     if score >= 2500:
         wins += 1
     else:
@@ -202,3 +210,4 @@ print(loss)
 print(bust)
 print(dealerHigher)
 print(biggest)
+print(stats.describe(np.asarray(profits)))
