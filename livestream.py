@@ -67,6 +67,10 @@ for n in ['A', *range(2,11), 'J', 'Q', 'K']:
 dealer = 0
 player = 0
 
+curr_count = 0
+add = {'2', '3', '4', '5', '6'}
+subtract = {'A', '10', '9', '8', 'J', 'Q', 'K'}
+
 # loop over frames from the video file stream
 while True:
 	# read the next frame from the file
@@ -146,6 +150,11 @@ while True:
 					dealer += cardToNum[LABELS[classIDs[i]][0]]
 				cards_played[LABELS[classIDs[i]]] = 1
 
+				if LABELS[classIDs[i]][0] in subtract:
+					curr_count -= 1
+				elif LABELS[classIDs[i]][0] in add:
+					curr_count += 1
+
 			color = [int(c) for c in COLORS[classIDs[i]]]
 			cv2.rectangle(frame, (x, y), (x+w, y+h), color, 2)
 			text = "{}: {:.4f}".format(LABELS[classIDs[i]],
@@ -153,7 +162,7 @@ while True:
 			cv2.putText(frame, text, (x, y - 5),
 				cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
-			print(player, dealer)
+			print(player, dealer, curr_count)
 
 
 	# check if the video writer is None
