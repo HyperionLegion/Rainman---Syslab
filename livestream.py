@@ -38,7 +38,7 @@ ln = [ln[i[0] - 1] for i in net.getUnconnectedOutLayers()]
 
 # initialize the video stream, pointer to output video file, and
 # frame dimensions
-vs = cv2.VideoCapture(1) # replace with live stream
+vs = cv2.VideoCapture(0) # replace with live stream
 #vs = cv2.VideoCapture(args["input"])
 writer = None
 (W, H) = (None, None)
@@ -54,6 +54,18 @@ except:
 	print("[INFO] could not determine # of frames in video")
 	print("[INFO] no approx. completion time can be provided")
 	total = -1
+
+cardToNum = {'A': 1,'J': 11, 'Q': 12, 'K': 13}
+for i in range(2,11):
+	cardToNum[i] = i
+
+cards_played = {}
+for n in ['A', *range(2,11), 'J', 'Q', 'K']:
+	for s in ['d', 'h', 's', 'c']:
+		cards_played[str(n)+s] = 0
+
+dealer = 0
+player = 0
 
 # loop over frames from the video file stream
 while True:
@@ -126,12 +138,24 @@ while True:
 			(w, h) = (boxes[i][2], boxes[i][3])
 			print(LABELS[classIDs[i]], x, y, w, h, W, H)
 			# draw a bounding box rectangle and label on the frame
+			
+			if not cards_played[LABELS[classIDs[i]]]:
+				if y+h/2 > H/2: # if card is on bottom side of the screen
+					player += cardToNum[LABELS[classIDs[i]][0]]
+				else: # assume that dealer is on top side of screen
+					dealer += cardToNum[LABELS[classIDs[i]][0]]
+				cards_played[LABELS[classIDs[i]]] = 1
+
 			color = [int(c) for c in COLORS[classIDs[i]]]
 			cv2.rectangle(frame, (x, y), (x+w, y+h), color, 2)
 			text = "{}: {:.4f}".format(LABELS[classIDs[i]],
 				confidences[i])
 			cv2.putText(frame, text, (x, y - 5),
 				cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+
+			print(player, dealer)
+
+
 	# check if the video writer is None
 	if writer is None:
 		# initialize our video writer
@@ -148,10 +172,10 @@ while True:
 	cv2.imshow('Input', frame)
 	if cv2.waitKey(1) & 0xFF == ord('q'):
 		break
-	
+
 # release the file pointers
 print("[INFO] cleaning up...")
-writer.release()
+# writer.release()
 vs.release()
 
 #            ch = 0xFF & cv2.waitKey(1000)
