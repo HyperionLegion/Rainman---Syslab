@@ -1,4 +1,3 @@
-# import the necessary packages
 import numpy as np
 import argparse
 import imutils
@@ -56,8 +55,6 @@ except:
 	total = -1
 
 cardToNum = {'A': 1,'J': 10, 'Q': 10, 'K': 10, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10}
-for i in range(2,11):
-	cardToNum[i] = i
 
 cards_played = {}
 for n in ['A', *range(2,11), 'J', 'Q', 'K']:
@@ -66,10 +63,6 @@ for n in ['A', *range(2,11), 'J', 'Q', 'K']:
 
 dealer = 0
 player = 0
-
-curr_count = 0
-add = {'2', '3', '4', '5', '6'}
-subtract = {'A', '10', '9', '8', 'J', 'Q', 'K'}
 
 # loop over frames from the video file stream
 while True:
@@ -150,11 +143,6 @@ while True:
 					dealer += cardToNum[LABELS[classIDs[i]][0]]
 				cards_played[LABELS[classIDs[i]]] = 1
 
-				if LABELS[classIDs[i]][0] in subtract:
-					curr_count -= 1
-				elif LABELS[classIDs[i]][0] in add:
-					curr_count += 1
-
 			color = [int(c) for c in COLORS[classIDs[i]]]
 			cv2.rectangle(frame, (x, y), (x+w, y+h), color, 2)
 			text = "{}: {:.4f}".format(LABELS[classIDs[i]],
@@ -162,7 +150,7 @@ while True:
 			cv2.putText(frame, text, (x, y - 5),
 				cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
-			print(player, dealer, curr_count)
+			print(player, dealer)
 
 
 	# check if the video writer is None
@@ -186,5 +174,3 @@ while True:
 print("[INFO] cleaning up...")
 # writer.release()
 vs.release()
-
-#            ch = 0xFF & cv2.waitKey(1000)
