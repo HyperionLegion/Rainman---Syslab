@@ -5,6 +5,7 @@ import imutils
 import time
 import cv2
 import os
+import random
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-i", "--input", required=True,
@@ -163,6 +164,10 @@ while True:
 				cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
 			print(player, dealer, curr_count)
+			if random.random() > 0.5:
+				print('hit')
+			else:
+				print('stand')
 
 
 	# check if the video writer is None
