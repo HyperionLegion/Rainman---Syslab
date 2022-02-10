@@ -6,6 +6,13 @@ import time
 import cv2
 import os
 import random
+
+# options are:
+# 'w' for wong_halves ---- level 3
+# 'z' for zen_count ---- level 2
+# 'h' for hi_lo ---- level 1
+style = 'z'
+
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-i", "--input", required=True,
@@ -69,6 +76,14 @@ dealer = 0
 player = 0
 
 curr_count = 0
+
+# Dictioanry keys: 
+# counting system (ex: wong halves) -> point values -> card ranks that associate with those values
+counting_style = {'w': {.5:{'2','7'}, 1:{'3','4','6'}, 1.5:{'5'}, -.5:{'9'}, -1:{'10', 'J', 'Q', 'K', 'A'}, 0:{'8'}}, 
+				  'z': {1:{'2','3','7'}, -1:{'A'}, 2:{'4','5','6'}, -2:{'10', 'J', 'Q', 'K'}, 0:{'8','9'}}, 
+				  'h': {1:{'2','3','4','5','6'}, 0:{'7','8','9'}, -1:{'A', '10', '9', '8', 'J', 'Q', 'K'}}
+				 }
+
 add = {'2', '3', '4', '5', '6'}
 subtract = {'A', '10', '9', '8', 'J', 'Q', 'K'}
 
@@ -151,10 +166,9 @@ while True:
 					dealer += cardToNum[LABELS[classIDs[i]][0]]
 				cards_played[LABELS[classIDs[i]]] = 1
 
-				if LABELS[classIDs[i]][0] in subtract:
-					curr_count -= 1
-				elif LABELS[classIDs[i]][0] in add:
-					curr_count += 1
+				for point_val in counting_style[style]:
+					if LABELS[classIDs[i]][0] in counting_style[style][point_val]:
+						curr_count += point_val
 
 			color = [int(c) for c in COLORS[classIDs[i]]]
 			cv2.rectangle(frame, (x, y), (x+w, y+h), color, 2)
