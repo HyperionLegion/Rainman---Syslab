@@ -67,6 +67,7 @@ cardToNum = {'A': 1,'J': 10, 'Q': 10, 'K': 10, '2': 2, '3': 3, '4': 4, '5': 5, '
 for i in range(2,11):
 	cardToNum[i] = i
 
+frame_unchanged = 0
 cards_played = {}
 for n in ['A', *range(2,11), 'J', 'Q', 'K']:
 	for s in ['d', 'h', 's', 'c']:
@@ -74,8 +75,7 @@ for n in ['A', *range(2,11), 'J', 'Q', 'K']:
 
 dealer = 0
 player = 0
-
-curr_count = 0
+curr_cardcount = 0
 
 # Dictioanry keys: 
 # counting system (ex: wong halves) -> point values -> card ranks that associate with those values
@@ -84,9 +84,6 @@ counting_style = {'w': {.5:{'2','7'}, 1:{'3','4','6'}, 1.5:{'5'}, -.5:{'9'}, -1:
 				  'h': {1:{'2','3','4','5','6'}, 0:{'7','8','9'}, -1:{'A', '10', '9', '8', 'J', 'Q', 'K'}}
 				 }
 
-add = {'2', '3', '4', '5', '6'}
-subtract = {'A', '10', '9', '8', 'J', 'Q', 'K'}
-
 # loop over frames from the video file stream
 while True:
 	# read the next frame from the file
@@ -94,6 +91,8 @@ while True:
 	print('read')
 	# if the frame was not grabbed, then we have reached the end
 	# of the stream
+	
+	frame_unchanged += 1
 
 	if not grabbed:
 		break
@@ -160,6 +159,7 @@ while True:
 			# draw a bounding box rectangle and label on the frame
 			
 			if not cards_played[LABELS[classIDs[i]]]:
+				frame_unchanged = 0
 				if y+h/2 > H/2: # if card is on bottom side of the screen
 					player += cardToNum[LABELS[classIDs[i]][0]]
 				else: # assume that dealer is on top side of screen
@@ -168,7 +168,7 @@ while True:
 
 				for point_val in counting_style[style]:
 					if LABELS[classIDs[i]][0] in counting_style[style][point_val]:
-						curr_count += point_val
+						curr_cardcount += point_val
 
 			color = [int(c) for c in COLORS[classIDs[i]]]
 			cv2.rectangle(frame, (x, y), (x+w, y+h), color, 2)
@@ -177,7 +177,7 @@ while True:
 			cv2.putText(frame, text, (x, y - 5),
 				cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
-			print(player, dealer, curr_count)
+			print(player, dealer, curr_cardcount, ('stable', 'unstable')[frame_unchanged == 0])
 			if random.random() > 0.5:
 				print('hit')
 			else:
