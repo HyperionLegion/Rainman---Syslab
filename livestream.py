@@ -77,6 +77,10 @@ dealer = 0
 player = 0
 curr_cardcount = 0
 
+#stability algorithm data structures
+frame_unchanged = 0
+cards_detected = []
+
 # Dictioanry keys: 
 # counting system (ex: wong halves) -> point values -> card ranks that associate with those values
 counting_style = {'w': {.5:{'2','7'}, 1:{'3','4','6'}, 1.5:{'5'}, -.5:{'9'}, -1:{'10', 'J', 'Q', 'K', 'A'}, 0:{'8'}}, 
@@ -92,8 +96,6 @@ while True:
 	# if the frame was not grabbed, then we have reached the end
 	# of the stream
 	
-	frame_unchanged += 1
-
 	if not grabbed:
 		break
 	# if the frame dimensions are empty, grab them
@@ -150,12 +152,14 @@ while True:
 		args["threshold"])
 	# ensure at least one detection exists
 	if len(idxs) > 0:
+		cards_detected_now = []
 		# loop over the indexes we are keeping
 		for i in idxs.flatten():
 			# extract the bounding box coordinates
 			(x, y) = (boxes[i][0], boxes[i][1])
 			(w, h) = (boxes[i][2], boxes[i][3])
 			print(LABELS[classIDs[i]], x, y, w, h, W, H)
+			cards_detected_now.append(LABELS[classIDs[i]])
 			# draw a bounding box rectangle and label on the frame
 			
 			if not cards_played[LABELS[classIDs[i]]]:
@@ -176,12 +180,22 @@ while True:
 				confidences[i])
 			cv2.putText(frame, text, (x, y - 5),
 				cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-
+		cards_detected_now.sort()
+		cards_detected.sort()
+		if cards_detected_now == cards_detected:
+			frame_unchanged += 1
+		if frame_unchanged == 5:
 			print(player, dealer, curr_cardcount, ('stable', 'unstable')[frame_unchanged == 0])
 			if random.random() > 0.5:
 				print('hit')
 			else:
 				print('stand')
+			frame_unchanged = 0
+		elif frame_unchanged == 0:
+			cards_detected = cards_detected_now
+	else:
+			frame_unchanged = 0
+
 
 
 	# check if the video writer is None
