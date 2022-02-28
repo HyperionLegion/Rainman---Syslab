@@ -80,6 +80,8 @@ curr_cardcount = 0
 #stability algorithm data structures
 frame_unchanged = 0
 cards_detected = []
+prev_round = []
+playerHit = False
 
 # Dictioanry keys: 
 # counting system (ex: wong halves) -> point values -> card ranks that associate with those values
@@ -182,21 +184,43 @@ while True:
 				cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 		cards_detected_now.sort()
 		cards_detected.sort()
+
+		#one more consecutive frame of same set of cards detected
 		if cards_detected_now == cards_detected:
-			frame_unchanged += 1
+			
+			#if player decided to hit, see if the frame includes prev cards + an extra card to hit
+			if playerHit: #if the player hit, increase frame_unchanged only if all prev detections are there and an additional card is detected
+				if len(prev_round) == len(cards_detected_now) + 1 and all(elem in cards_detected_now for elem in prev_round): #need to add that cards_detected and cards_detected_now have same elements except one
+					frame_unchanged += 1
+				else:
+					frame_unchanged = 0
+				
+			#player did not decide to hit or still start of new round
+			else:
+				frame_unchanged += 1
+		
+		#make new betting decision
 		if frame_unchanged == 5:
 			print(player, dealer, curr_cardcount, ('stable', 'unstable')[frame_unchanged == 0])
 			if random.random() > 0.5:
 				print('hit')
+				prev_round = cards_detected
 			else:
 				print('stand')
+				#round is finished, compare player and dealer to determine winner and change to money, then reset
+				#reset
+				player = 0
+				dealer = 0
+				curr_cardcount = 0
+				cards_detected = []
 			frame_unchanged = 0
 		elif frame_unchanged == 0:
+			#not stable reading, reset what the first frame we compare to is to the current frame
 			cards_detected = cards_detected_now
 	else:
+			#no reading, reset what the first frame we compare to is to the current frame
 			frame_unchanged = 0
-
-
+			cards_detected = []
 
 	# check if the video writer is None
 	if writer is None:
