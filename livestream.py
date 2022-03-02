@@ -73,8 +73,6 @@ for n in ['A', *range(2,11), 'J', 'Q', 'K']:
 	for s in ['d', 'h', 's', 'c']:
 		cards_played[str(n)+s] = 0
 
-print(cards_played)
-
 dealer = 0
 player = 0
 curr_cardcount = 0
@@ -168,7 +166,7 @@ while True:
 			# extract the bounding box coordinates
 			(x, y) = (boxes[i][0], boxes[i][1])
 			(w, h) = (boxes[i][2], boxes[i][3])
-			print(LABELS[classIDs[i]], x, y, w, h, W, H)
+			# print(LABELS[classIDs[i]], x, y, w, h, W, H)
 			cards_detected_now.append(LABELS[classIDs[i]])
 			# draw a bounding box rectangle and label on the frame
 			
@@ -197,7 +195,7 @@ while True:
 			
 			#if player decided to hit, see if the frame includes prev cards + an extra card to hit
 			if playerHit: #if the player hit, increase frame_unchanged only if all prev detections are there and an additional card is detected
-				if len(prev_round) == len(cards_detected_now) + 1 and all(elem in cards_detected_now for elem in prev_round): #need to add that cards_detected and cards_detected_now have same elements except one
+				if (len(prev_round) == len(cards_detected_now) + 1 or len(prev_round) == len(cards_detected_now)) and all(elem in cards_detected_now for elem in prev_round): #need to add that cards_detected and cards_detected_now have same elements except one
 					frame_unchanged += 1
 				else:
 					frame_unchanged = 0
@@ -205,10 +203,10 @@ while True:
 			#player did not decide to hit or still start of new round
 			else:
 				frame_unchanged += 1
-				print(frame_unchanged, "start of round")
+				# print(frame_unchanged, "start of new round")
 		else:
 			frame_unchanged = 0
-			print(frame_unchanged, "unstable, try new reading")
+			# print(frame_unchanged, "unstable, try new reading")
 		
 		#make new betting decision
 		print(frame_unchanged)
@@ -216,50 +214,38 @@ while True:
 			# player = playerPotential
 			# dealer = dealerPotential
 			# curr_cardcount += curr_cardcountPotential
-			print(idxs)
+			# print(idxs)
 			for i in idxs.flatten():
 				if not cards_played[LABELS[classIDs[i]]]:
 					(x, y) = (boxes[i][0], boxes[i][1])
 					(w, h) = (boxes[i][2], boxes[i][3])
 					if y+h/2 > H/2: # if card is on bottom side of the screen
-						print(LABELS[classIDs[i]])
-						print(cardToNum[LABELS[classIDs[i]][0:-1]], "player")
 						player += cardToNum[LABELS[classIDs[i]][0:-1]]
 					else: # assume that dealer is on top side of screen
 						dealer += cardToNum[LABELS[classIDs[i]][0:-1]]
-						print(cardToNum[LABELS[classIDs[i]][0:-1]], "dealer")
 					cards_played[LABELS[classIDs[i]]] += 1
 					for point_val in counting_style[style]:
 						if LABELS[classIDs[i]][0:-1] in counting_style[style][point_val]:
 							curr_cardcount += point_val
 
 			print(player, dealer, curr_cardcount, ('stable', 'unstable')[frame_unchanged == 0])
-			# if random.random() > 0.5:
-			# 	print('hit')
-			# 	prev_round = cards_detected
-			#   playerHit = True
-			# else:
-			# 	print('stand')
-			#   playerHit = False
-			# 	#round is finished, compare player and dealer to determine winner and change to money, then reset
-			# 	#reset
-			# 	player = 0
-			# 	dealer = 0
-			# 	curr_cardcount = 0
-			# 	cards_detected = []
-
-			# test stand
-			if player > dealer:
-				print('win')
+			if random.random() > 0.5:
+				print('hit')
+				prev_round = cards_detected
+				playerHit = True
 			else:
-				print('lose')
-			#reset
-			print('stand')
-			player = 0
-			dealer = 0
-			curr_cardcount = 0
-			cards_detected = []
-			playerHit = False
+				if player > dealer:
+					print('win')
+				else:
+					print('lose')
+				print('stand')
+				playerHit = False
+			 	#round is finished, compare player and dealer to determine winner and change to money, then reset
+			 	#reset
+				player = 0
+				dealer = 0
+				curr_cardcount = 0
+				cards_detected = []
 
 
 			frame_unchanged = 0
