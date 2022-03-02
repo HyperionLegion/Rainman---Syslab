@@ -195,7 +195,7 @@ while True:
 			
 			#if player decided to hit, see if the frame includes prev cards + an extra card to hit
 			if playerHit: #if the player hit, increase frame_unchanged only if all prev detections are there and an additional card is detected
-				if (len(prev_round) == len(cards_detected_now) + 1 or len(prev_round) == len(cards_detected_now)) and all(elem in cards_detected_now for elem in prev_round): #need to add that cards_detected and cards_detected_now have same elements except one
+				if (len(prev_round)+1 == len(cards_detected_now) or len(prev_round)+2 == len(cards_detected_now)) and all(elem in cards_detected_now for elem in prev_round): #need to add that cards_detected and cards_detected_now have same elements except one
 					frame_unchanged += 1
 				else:
 					frame_unchanged = 0
