@@ -8,7 +8,7 @@ import os
 import random
 
 # options are:
-# 'w' for wong_halves ---- level 3
+# 'w' for wong_halv-es ---- level 3
 # 'z' for zen_count ---- level 2
 # 'h' for hi_lo ---- level 1
 style = 'z'
@@ -35,7 +35,7 @@ np.random.seed(42)
 COLORS = np.random.randint(0, 255, size=(len(LABELS), 3),
 	dtype="uint8")
 # derive the paths to the YOLO weights and model configuration
-weightsPath = os.path.sep.join([args["yolo"], "yolo-obj_4100.weights"])
+weightsPath = os.path.sep.join([args["yolo"], "yolo-obj_5100.weights"])
 configPath = os.path.sep.join([args["yolo"], "yolo-obj.cfg"])
 # load our YOLO object detector trained on COCO dataset (80 classes)
 # and determine only the *output* layer names that we need from YOLO
@@ -47,9 +47,6 @@ ln = [ln[i[0] - 1] for i in net.getUnconnectedOutLayers()]
 # initialize the video stream, pointer to output video file, and
 # frame dimensions
 vs = cv2.VideoCapture(0) # replace with live stream
-vs.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-vs.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
-
 #vs = cv2.VideoCapture(args["input"])
 writer = None
 (W, H) = (None, None)
@@ -107,7 +104,6 @@ while True:
 	if not grabbed:
 		break
 	# if the frame dimensions are empty, grab them
-
 	frame = cv2.resize(frame, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_AREA)
 	if W is None or H is None:
 		(H, W) = frame.shape[:2]
@@ -233,15 +229,49 @@ while True:
 							curr_cardcount += point_val
 
 			print(player, dealer, curr_cardcount, ('stable', 'unstable')[frame_unchanged == 0])
-			if random.random() > 0.5:
+			if player >= 21:
+				if player > 21:
+					print('lose')
+				elif player==21 and dealer !=21:
+					print('win')
+				elif dealer > 21:
+					print('win')
+				else:
+					if dealer <= 21 and player < 21:
+						if dealer > player:
+							print('lose')
+						elif player > dealer:
+							print('win')
+						else:
+							print('draw')
+				print('stand')
+				playerHit = False
+			 	#round is finished, compare player and dealer to determine winner and change to money, then reset
+			 	#reset
+				player = 0
+				dealer = 0
+				curr_cardcount = 0
+				cards_detected = []
+				
+			elif random.random() > 0.5:
 				print('hit')
 				prev_round = cards_detected
 				playerHit = True
 			else:
-				if player > dealer:
+				if player > 21:
+					print('lose')
+				elif player==21 and dealer !=21:
+					print('win')
+				elif dealer > 21:
 					print('win')
 				else:
-					print('lose')
+					if dealer <= 21 and player < 21:
+						if dealer > player:
+							print('lose')
+						elif player > dealer:
+							print('win')
+						else:
+							print('draw')
 				print('stand')
 				playerHit = False
 			 	#round is finished, compare player and dealer to determine winner and change to money, then reset

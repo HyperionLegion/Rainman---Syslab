@@ -29,7 +29,7 @@ def drawCard():
   card = deck_pool[ind]
   deck_pool = deck_pool[:ind]+deck_pool[ind+1:]
   for point_val in counting_style[style]:
-    if card in counting_style[style][poing_val]:
+    if card in counting_style[style][point_val]:
       card_count += point_val
       break
   return cardToNum[card]
